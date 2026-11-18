@@ -1,0 +1,249 @@
+.root {
+    -fx-font-family: "Inter", "SF Pro Display", "Segoe UI", sans-serif;
+    -fx-font-size: 14px;
+}
+
+.app-root {
+    -fx-background-color: linear-gradient(to bottom right, #090a13, #16132c 55%, #24205b);
+}
+
+.login-background {
+    -fx-padding: 40px;
+}
+
+.login-card {
+    -fx-background-color: rgba(16, 16, 29, 0.95);
+    -fx-background-radius: 26px;
+    -fx-border-color: rgba(180, 168, 255, 0.38);
+    -fx-border-radius: 26px;
+    -fx-padding: 42px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.55), 35, 0.25, 0, 12);
+}
+
+.login-logo, .brand-label {
+    -fx-text-fill: #f6f4ff;
+    -fx-font-size: 23px;
+    -fx-font-weight: 800;
+}
+
+.login-heading {
+    -fx-text-fill: white;
+    -fx-font-size: 28px;
+    -fx-font-weight: 800;
+}
+
+.muted-label, .account-label, .contact-subtitle {
+    -fx-text-fill: #9692ad;
+}
+
+.field-label {
+    -fx-text-fill: #aaa5c5;
+    -fx-font-size: 11px;
+    -fx-font-weight: 700;
+}
+
+.text-field, .login-field, .search-field, .message-input {
+    -fx-background-color: rgba(255, 255, 255, 0.075);
+    -fx-text-fill: #f5f3ff;
+    -fx-prompt-text-fill: #77728e;
+    -fx-background-radius: 14px;
+    -fx-border-color: rgba(255, 255, 255, 0.08);
+    -fx-border-radius: 14px;
+    -fx-padding: 13px 16px;
+}
+
+.text-field:focused {
+    -fx-border-color: #8d64ff;
+}
+
+.primary-button, .logout-button {
+    -fx-background-color: linear-gradient(to right, #c43cff, #6c52ff);
+    -fx-text-fill: white;
+    -fx-font-weight: 800;
+    -fx-background-radius: 15px;
+    -fx-padding: 14px 22px;
+    -fx-cursor: hand;
+}
+
+.primary-button:hover, .logout-button:hover, .send-button:hover {
+    -fx-opacity: 0.88;
+}
+
+.primary-button:disabled {
+    -fx-opacity: 0.5;
+}
+
+.login-status, .chat-status {
+    -fx-text-fill: #d4a5ff;
+}
+
+.left-sidebar, .right-sidebar {
+    -fx-background-color: rgba(10, 10, 18, 0.94);
+    -fx-padding: 28px 22px;
+}
+
+.left-sidebar {
+    -fx-border-color: transparent rgba(255,255,255,0.07) transparent transparent;
+}
+
+.right-sidebar {
+    -fx-border-color: transparent transparent transparent rgba(255,255,255,0.07);
+}
+
+.contact-list {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.contact-list .viewport, .contact-list .virtual-flow {
+    -fx-background-color: transparent;
+}
+
+.contact-list .list-cell {
+    -fx-background-color: transparent;
+    -fx-padding: 12px;
+    -fx-background-radius: 14px;
+}
+
+.contact-list .list-cell:selected {
+    -fx-background-color: rgba(112, 79, 219, 0.35);
+}
+
+.contact-list .list-cell:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.06);
+}
+
+.contact-avatar, .large-avatar {
+    -fx-background-color: linear-gradient(to bottom right, #a55cff, #4f6fff);
+    -fx-background-radius: 999px;
+    -fx-alignment: center;
+}
+
+.contact-avatar {
+    -fx-min-width: 44px;
+    -fx-min-height: 44px;
+    -fx-max-width: 44px;
+    -fx-max-height: 44px;
+}
+
+.large-avatar {
+    -fx-min-width: 104px;
+    -fx-min-height: 104px;
+    -fx-max-width: 104px;
+    -fx-max-height: 104px;
+}
+
+.contact-avatar-text, .large-avatar-text {
+    -fx-text-fill: white;
+    -fx-font-weight: 800;
+}
+
+.large-avatar-text {
+    -fx-font-size: 30px;
+}
+
+.contact-name, .conversation-title, .profile-name, .section-heading {
+    -fx-text-fill: #f5f3ff;
+    -fx-font-weight: 800;
+}
+
+.conversation-title, .profile-name {
+    -fx-font-size: 20px;
+}
+
+.online-label {
+    -fx-text-fill: #54d653;
+}
+
+.away-label {
+    -fx-text-fill: #f0bd4f;
+}
+
+.unreachable-label {
+    -fx-text-fill: #f08080;
+}
+
+.offline-label {
+    -fx-text-fill: #77728e;
+}
+
+.conversation-panel {
+    -fx-background-color: linear-gradient(to bottom right, rgba(32, 26, 73, 0.92), rgba(8, 9, 17, 0.96));
+}
+
+.conversation-header {
+    -fx-padding: 24px 30px;
+    -fx-border-color: transparent transparent rgba(255,255,255,0.08) transparent;
+}
+
+.message-scroll, .message-scroll .viewport {
+    -fx-background-color: transparent;
+}
+
+.messages-box {
+    -fx-padding: 26px 34px;
+}
+
+.incoming-bubble, .outgoing-bubble {
+    -fx-padding: 12px 16px;
+    -fx-background-radius: 16px;
+    -fx-max-width: 500px;
+}
+
+.incoming-bubble {
+    -fx-background-color: rgba(255, 255, 255, 0.10);
+}
+
+.outgoing-bubble {
+    -fx-background-color: linear-gradient(to bottom right, #7454e8, #4934a8);
+}
+
+.message-sender {
+    -fx-text-fill: #cfc5ff;
+    -fx-font-size: 11px;
+    -fx-font-weight: 700;
+}
+
+.message-content {
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+}
+
+.message-time {
+    -fx-text-fill: #aaa4bd;
+    -fx-font-size: 10px;
+}
+
+.system-message {
+    -fx-background-color: rgba(255,255,255,0.07);
+    -fx-background-radius: 12px;
+    -fx-padding: 7px 13px;
+    -fx-text-fill: #bcb7cf;
+    -fx-font-size: 11px;
+}
+
+.composer {
+    -fx-padding: 18px 28px 26px 28px;
+}
+
+.send-button {
+    -fx-background-color: linear-gradient(to bottom right, #c13eff, #704fff);
+    -fx-text-fill: white;
+    -fx-font-size: 18px;
+    -fx-font-weight: 800;
+    -fx-background-radius: 999px;
+    -fx-min-width: 48px;
+    -fx-min-height: 48px;
+    -fx-cursor: hand;
+}
+
+.media-placeholder {
+    -fx-background-color: rgba(255,255,255,0.055);
+    -fx-background-radius: 16px;
+    -fx-padding: 18px;
+    -fx-max-width: Infinity;
+}
+
+.logout-button {
+    -fx-max-width: Infinity;
+}

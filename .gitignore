@@ -1,0 +1,17 @@
+# Maven build output
+target/
+
+# IDE and operating-system metadata
+.idea/
+.vscode/
+*.iml
+.DS_Store
+
+# TLS material generated locally during the security phase
+certs/
+*.jks
+*.p12
+*.pfx
+
+# Local logs
+*.log
