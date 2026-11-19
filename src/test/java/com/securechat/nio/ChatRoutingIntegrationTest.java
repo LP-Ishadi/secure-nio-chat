@@ -1,12 +1,18 @@
 package com.securechat.nio;
 
+import com.securechat.database.DatabaseManager;
+import com.securechat.database.UserRepository;
 import com.securechat.demo.blocking.BlockingMessageConnection;
 import com.securechat.protocol.ChatMessage;
 import com.securechat.protocol.MessageType;
 import com.securechat.testutil.TlsTestSockets;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.net.Socket;
+import java.nio.file.Path;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -17,9 +23,29 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ChatRoutingIntegrationTest {
+
+    @TempDir
+    Path tempDir;
+
+    @BeforeEach
+    void setUp() throws Exception {
+        Path testDb = tempDir.resolve("test-routing.db");
+        DatabaseManager.setDatabaseUrl("jdbc:sqlite:" + testDb.toAbsolutePath().toString().replace('\\', '/'));
+        DatabaseManager.initializeDatabase();
+    }
+
+    @AfterEach
+    void tearDown() {
+        DatabaseManager.resetDatabaseUrl();
+    }
+
     @Test
     void routesPublicAndPrivateMessagesUsingAuthenticatedIdentity()
             throws Exception {
+        UserRepository userRepository = new UserRepository();
+        userRepository.registerUser("Alice", "ValidPassword123".toCharArray());
+        userRepository.registerUser("Bob", "ValidPassword123".toCharArray());
+
         ExecutorService serverThread = Executors.newSingleThreadExecutor();
 
         try (NioChatServer server = new NioChatServer(0, 4)) {
@@ -176,7 +202,7 @@ class ChatRoutingIntegrationTest {
                     MessageType.LOGIN,
                     username,
                     null,
-                    null,
+                    "ValidPassword123",
                     requestId
             ));
             return connection.receive();

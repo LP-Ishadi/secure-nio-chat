@@ -1,10 +1,16 @@
 package com.securechat.client;
 
+import com.securechat.database.DatabaseManager;
+import com.securechat.database.UserRepository;
 import com.securechat.nio.NioChatServer;
 import com.securechat.protocol.ChatMessage;
 import com.securechat.protocol.MessageType;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
+import java.nio.file.Path;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -16,9 +22,29 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class SecureChatClientIntegrationTest {
+
+    @TempDir
+    Path tempDir;
+
+    @BeforeEach
+    void setUp() throws Exception {
+        Path testDb = tempDir.resolve("test-client.db");
+        DatabaseManager.setDatabaseUrl("jdbc:sqlite:" + testDb.toAbsolutePath().toString().replace('\\', '/'));
+        DatabaseManager.initializeDatabase();
+    }
+
+    @AfterEach
+    void tearDown() {
+        DatabaseManager.resetDatabaseUrl();
+    }
+
     @Test
     void twoPersistentGuiClientsExchangePublicAndPrivateMessages()
             throws Exception {
+        UserRepository userRepository = new UserRepository();
+        userRepository.registerUser("Alice", "ValidPassword123".toCharArray());
+        userRepository.registerUser("Bob", "ValidPassword123".toCharArray());
+
         ExecutorService serverThread = Executors.newSingleThreadExecutor();
 
         try (NioChatServer server = new NioChatServer(0, 4)) {
@@ -36,11 +62,11 @@ class SecureChatClientIntegrationTest {
                  SecureChatClient bob = new SecureChatClient(bobEvents)) {
                 assertEquals(
                         MessageType.LOGIN_SUCCESS,
-                        alice.connect("localhost", server.port(), "Alice").type()
+                        alice.connect("localhost", server.port(), "Alice", "ValidPassword123").type()
                 );
                 assertEquals(
                         MessageType.LOGIN_SUCCESS,
-                        bob.connect("localhost", server.port(), "Bob").type()
+                        bob.connect("localhost", server.port(), "Bob", "ValidPassword123").type()
                 );
                 assertTrue(alice.tlsProtocol().startsWith("TLS"));
                 assertTrue(bob.tlsProtocol().startsWith("TLS"));

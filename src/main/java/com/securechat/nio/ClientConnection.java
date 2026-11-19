@@ -24,6 +24,8 @@ public final class ClientConnection {
     private final AtomicReference<String> username = new AtomicReference<>();
     private final AtomicReference<String> heartbeatSessionId =
             new AtomicReference<>();
+    private final java.util.concurrent.atomic.AtomicBoolean loginConfirmed =
+            new java.util.concurrent.atomic.AtomicBoolean();
     private final SerialExecutor serialExecutor;
 
     public ClientConnection(SocketChannel channel) throws SSLException {
@@ -79,6 +81,9 @@ public final class ClientConnection {
                 requestedUsername,
                 "requestedUsername must not be null"
         );
+        if (!channel.isOpen()) {
+            return false;
+        }
         return username.compareAndSet(null, requestedUsername);
     }
 
@@ -102,6 +107,14 @@ public final class ClientConnection {
         return heartbeatSessionId.get();
     }
 
+    public boolean isLoginConfirmed() {
+        return loginConfirmed.get();
+    }
+
+    public void confirmLogin() {
+        loginConfirmed.set(true);
+    }
+
     public void executeSerial(Runnable task) {
         serialExecutor.execute(task);
     }
@@ -113,6 +126,7 @@ public final class ClientConnection {
         readBuffer.clear();
         username.set(null);
         heartbeatSessionId.set(null);
+        loginConfirmed.set(false);
         serialExecutor.close();
     }
 }

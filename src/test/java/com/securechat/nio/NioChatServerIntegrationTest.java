@@ -1,13 +1,19 @@
 package com.securechat.nio;
 
+import com.securechat.database.DatabaseManager;
+import com.securechat.database.UserRepository;
 import com.securechat.demo.blocking.BlockingMessageConnection;
 import com.securechat.protocol.ChatMessage;
 import com.securechat.protocol.MessageType;
 import com.securechat.testutil.TlsTestSockets;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.net.InetAddress;
 import java.net.Socket;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -20,9 +26,29 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class NioChatServerIntegrationTest {
     private static final int CLIENT_COUNT = 5;
 
+    @TempDir
+    Path tempDir;
+
+    @BeforeEach
+    void setUp() throws Exception {
+        Path testDb = tempDir.resolve("test-server.db");
+        DatabaseManager.setDatabaseUrl("jdbc:sqlite:" + testDb.toAbsolutePath().toString().replace('\\', '/'));
+        DatabaseManager.initializeDatabase();
+    }
+
+    @AfterEach
+    void tearDown() {
+        DatabaseManager.resetDatabaseUrl();
+    }
+
     @Test
     void registersSeveralConcurrentClientsUsingOneSelector()
             throws Exception {
+        UserRepository userRepository = new UserRepository();
+        for (int index = 0; index < CLIENT_COUNT; index++) {
+            userRepository.registerUser("Client-" + index, "ValidPassword123".toCharArray());
+        }
+
         ExecutorService serverThread = Executors.newSingleThreadExecutor();
         ExecutorService clientThreads = Executors.newFixedThreadPool(CLIENT_COUNT);
 
@@ -44,7 +70,7 @@ class NioChatServerIntegrationTest {
                             MessageType.LOGIN,
                             "Client-" + clientNumber,
                             null,
-                            null,
+                            "ValidPassword123",
                             1_700_000_000_000L + clientNumber,
                             "nio-request-" + clientNumber
                     );
