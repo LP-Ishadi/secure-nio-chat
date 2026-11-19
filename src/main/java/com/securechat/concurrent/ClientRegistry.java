@@ -90,6 +90,7 @@ public final class ClientRegistry {
     /** Returns a stable snapshot for broadcasting without exposing the map. */
     public List<ClientConnection> connectionsSnapshot() {
         return clientsByUsername.values().stream()
+                .filter(ClientConnection::isLoginConfirmed)
                 .distinct()
                 .toList();
     }

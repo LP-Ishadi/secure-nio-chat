@@ -3,6 +3,7 @@ package com.securechat.nio;
 import com.securechat.concurrent.ChatWorkerPool;
 import com.securechat.concurrent.ClientRegistry;
 import com.securechat.concurrent.MessageDispatcher;
+import com.securechat.database.DatabaseManager;
 import com.securechat.protocol.ChatMessage;
 import com.securechat.protocol.FrameDecodingException;
 import com.securechat.protocol.FrameEncoder;
@@ -126,6 +127,11 @@ public final class NioChatServer implements AutoCloseable {
                 sslContext,
                 "sslContext must not be null"
         );
+        try {
+            DatabaseManager.initializeDatabase();
+        } catch (Exception exception) {
+            System.err.println("Database initialization warning: " + exception.getMessage());
+        }
         workerPool = new ChatWorkerPool(workerThreadCount);
 
         Selector createdSelector = Selector.open();
@@ -200,7 +206,10 @@ public final class NioChatServer implements AutoCloseable {
                 },
                 tokenService,
                 heartbeatServer.port(),
-                HEARTBEAT_INTERVAL_MILLIS
+                HEARTBEAT_INTERVAL_MILLIS,
+                new com.securechat.database.UserRepository(),
+                new com.securechat.database.MessageRepository(),
+                presenceTracker
         );
     }
 
@@ -342,17 +351,9 @@ public final class NioChatServer implements AutoCloseable {
 
         for (byte[] payload : payloads) {
             ChatMessage message = messageCodec.decode(payload);
-
-            // Login remains selector-owned so registration cannot race with
-            // a simultaneous socket close. Post-login work uses the pool.
-            if (!connection.isRegistered()
-                    && message.type() == MessageType.LOGIN) {
-                messageDispatcher.dispatch(connection, message);
-            } else {
-                connection.executeSerial(
-                        () -> messageDispatcher.dispatch(connection, message)
-                );
-            }
+            connection.executeSerial(
+                    () -> messageDispatcher.dispatch(connection, message)
+            );
         }
         updateWriteInterest(key, connection);
     }

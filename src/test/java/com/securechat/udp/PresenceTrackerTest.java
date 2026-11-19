@@ -41,4 +41,28 @@ class PresenceTrackerTest {
         );
         assertEquals(0, tracker.size());
     }
+
+    @Test
+    void queriesStatusAndEffectiveStatusesByUsername() {
+        PresenceTracker tracker = new PresenceTracker(1_000, 2_000);
+        assertEquals(PresenceStatus.OFFLINE, tracker.getStatus("UnknownUser"));
+        assertEquals(PresenceStatus.OFFLINE, tracker.getStatus(null));
+
+        tracker.register("session-1", "Alice", 10_000);
+        tracker.register("session-2", "Bob", 10_000);
+
+        assertEquals(PresenceStatus.ONLINE, tracker.getEffectiveStatus("Alice", 10_500));
+        assertEquals(PresenceStatus.AWAY, tracker.getEffectiveStatus("Alice", 11_500));
+        assertEquals(PresenceStatus.UNREACHABLE, tracker.getEffectiveStatus("Alice", 12_500));
+        assertEquals(PresenceStatus.ONLINE, tracker.getEffectiveStatus("alice", 10_500)); // case-insensitive
+
+        List<PresenceChange> active = tracker.currentStatuses(10_500);
+        assertEquals(2, active.size());
+        assertTrue(active.stream().anyMatch(c -> c.username().equals("Alice") && c.status() == PresenceStatus.ONLINE));
+        assertTrue(active.stream().anyMatch(c -> c.username().equals("Bob") && c.status() == PresenceStatus.ONLINE));
+
+        tracker.markOffline("session-1");
+        assertEquals(PresenceStatus.OFFLINE, tracker.getStatus("Alice"));
+        assertEquals(PresenceStatus.ONLINE, tracker.getEffectiveStatus("Bob", 10_500));
+    }
 }

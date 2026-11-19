@@ -1,7 +1,9 @@
 package com.securechat.udp;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
@@ -105,6 +107,53 @@ public final class PresenceTracker {
     public Optional<PresenceStatus> status(String sessionId) {
         Entry entry = entries.get(sessionId);
         return entry == null ? Optional.empty() : Optional.of(entry.status());
+    }
+
+    public PresenceStatus getStatus(String username) {
+        return getEffectiveStatus(username, System.currentTimeMillis());
+    }
+
+    public PresenceStatus getEffectiveStatus(String username, long nowMillis) {
+        if (username == null || username.isBlank()) {
+            return PresenceStatus.OFFLINE;
+        }
+        for (Entry entry : entries.values()) {
+            if (entry.username().equalsIgnoreCase(username)) {
+                long elapsed = Math.max(0, nowMillis - entry.lastHeartbeatMillis());
+                if (elapsed >= unreachableTimeoutMillis) {
+                    return PresenceStatus.UNREACHABLE;
+                } else if (elapsed >= awayTimeoutMillis) {
+                    return PresenceStatus.AWAY;
+                }
+                return entry.status();
+            }
+        }
+        return PresenceStatus.OFFLINE;
+    }
+
+    public List<PresenceChange> currentStatuses() {
+        return currentStatuses(System.currentTimeMillis());
+    }
+
+    public List<PresenceChange> currentStatuses(long nowMillis) {
+        Map<String, PresenceStatus> statusByUsername = new HashMap<>();
+        for (Entry entry : entries.values()) {
+            long elapsed = Math.max(0, nowMillis - entry.lastHeartbeatMillis());
+            PresenceStatus status = entry.status();
+            if (elapsed >= unreachableTimeoutMillis) {
+                status = PresenceStatus.UNREACHABLE;
+            } else if (elapsed >= awayTimeoutMillis) {
+                status = PresenceStatus.AWAY;
+            }
+            statusByUsername.merge(entry.username(), status, (existing, current) ->
+                    current.ordinal() < existing.ordinal() ? current : existing
+            );
+        }
+        List<PresenceChange> changes = new ArrayList<>();
+        for (Map.Entry<String, PresenceStatus> item : statusByUsername.entrySet()) {
+            changes.add(new PresenceChange(item.getKey(), item.getValue()));
+        }
+        return List.copyOf(changes);
     }
 
     public int size() {
